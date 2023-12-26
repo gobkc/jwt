@@ -121,7 +121,10 @@ func (j *Ins) Verify(token string, obj interface{}) error {
 	if sign, _, _ := j.generateSign(j.Head, payload); sign != tokenList[2] {
 		return errors.New("signature error")
 	}
-	payload.Expire = time.Now().Add(j.Expired).Unix()
+	if payload.Expire < time.Now().Unix() {
+		return errors.New(`token is expired`)
+	}
+	//payload.Expire = time.Now().Add(j.Expired).Unix()
 	if reflect.TypeOf(&payload) == reflect.TypeOf(obj) {
 		reflect.ValueOf(obj).Elem().Set(reflect.ValueOf(&payload).Elem())
 	}
